@@ -1,8 +1,8 @@
-name: Health App End-to-End Tests
+name: Health app E2E Tests
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
 
 jobs:
   test:

@@ -6,6 +6,10 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/", (_req, res) => {
+  res.send("Healthapp API is running");
+});
+
 app.get("/ping", (_req, res) => {
   res.send("pong");
 });

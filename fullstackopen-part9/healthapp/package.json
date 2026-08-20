@@ -4,12 +4,11 @@
   "description": "",
   "type": "module",
   "scripts": {
-      "tsc": "tsc",
+    "tsc": "tsc",
     "calculateBmi": "tsx bmiCalculator.ts",
     "calculateExercises": "tsx exerciseCalculator.ts",
     "start": "node index.ts",
-  "dev": "concurrently \"tsc --watch\" \"node --watch index.ts\""
-
+    "dev": "concurrently \"tsc --watch\" \"node --watch index.ts\""
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

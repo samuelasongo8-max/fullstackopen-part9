@@ -4,6 +4,7 @@
     "typescript": "^7.0.2"
   },
   "scripts": {
-    "calculateBmi": "tsx bmiCalculator.ts"
+    "calculateBmi": "tsx bmiCalculator.ts",
+    "calculateExercises": "tsx exerciseCalculator.ts"
   }
 }

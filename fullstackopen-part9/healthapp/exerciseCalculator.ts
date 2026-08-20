@@ -8,7 +8,11 @@ interface Result {
   average: number;
 }
 
-const calculateExercises = (
+declare const process: {
+  argv: string[];
+};
+
+export const calculateExercises = (
   dailyExerciseHours: number[],
   target: number
 ): Result => {
@@ -32,13 +36,13 @@ const calculateExercises = (
 
   if (average >= target) {
     rating = 3;
-    ratingDescription = 'great job, you reached your target';
+    ratingDescription = "great job, you reached your target";
   } else if (average >= target * 0.75) {
     rating = 2;
-    ratingDescription = 'not too bad but could be better';
+    ratingDescription = "not too bad but could be better";
   } else {
     rating = 1;
-    ratingDescription = 'bad, you should exercise more';
+    ratingDescription = "bad, you should exercise more";
   }
 
   return {
@@ -52,6 +56,28 @@ const calculateExercises = (
   };
 };
 
+// Get command-line arguments
+const args = process.argv.slice(2);
+
+if (args.length < 2) {
+  throw new Error(
+    "Please provide a target and at least one day of exercise hours."
+  );
+}
+
+const target = Number(args[0]);
+
+const dailyExerciseHours = args.slice(1).map(Number);
+
+// Check that all arguments are valid numbers
+if (
+  isNaN(target) ||
+  dailyExerciseHours.some((hours: number) => isNaN(hours))
+) {
+  throw new Error("All arguments must be numbers.");
+}
+
+// Calculate and print the result
 console.log(
-  calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2)
+  calculateExercises(dailyExerciseHours, target)
 );

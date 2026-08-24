@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type Diagnosis = {
   code: string;
   name: string;
@@ -9,11 +11,27 @@ export type Patient = {
   name: string;
   dateOfBirth: string;
   ssn: string;
-  gender: string;
+  gender: Gender;
   occupation: string;
 };
 
-export type NewPatientEntry = Omit<Patient, 'id'>;
+export const Gender = {
+  Male: 'male',
+  Female: 'female',
+  Other: 'other',
+} as const;
+
+export type Gender = typeof Gender[keyof typeof Gender];
+
+export const NewPatientSchema = z.object({
+  name: z.string().min(1),
+  dateOfBirth: z.iso.date(),
+  ssn: z.string().min(1),
+  gender: z.enum(Gender),
+  occupation: z.string().min(1),
+});
+
+export type NewPatientEntry = z.infer<typeof NewPatientSchema>;
 
 export type PublicPatient = Pick<
   Patient,

@@ -1,4 +1,5 @@
 import express, { type Request, type Response } from 'express';
+import { ZodError } from 'zod';
 import patientService from '../services/patientService.js';
 import { parseNewPatientEntry } from '../utils.js';
 import type { Patient, PublicPatient } from '../types.js';
@@ -15,7 +16,9 @@ router.post('/', (req: Request, res: Response<Patient | { error: string }>) => {
     const addedPatient = patientService.addPatient(newPatient);
     res.json(addedPatient);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Invalid patient data';
+    const message = error instanceof ZodError
+      ? error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ')
+      : error instanceof Error ? error.message : 'Invalid patient data';
     res.status(400).json({ error: message });
   }
 });

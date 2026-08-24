@@ -1,7 +1,8 @@
 import express, { type Request, type Response } from 'express';
 import diaryService from '../services/diaryService.ts';
-import { type DiaryEntry, type NewDiaryEntry, type NonSensitiveDiaryEntry } from '../types.ts';
-import { newDiaryParser, errorMiddleware } from '../middleware.ts';
+import { type DiaryEntry, type NonSensitiveDiaryEntry } from '../types.ts';
+import { errorMiddleware } from '../middleware.ts';
+import { parseNewDiaryEntry } from '../utils.ts';
 
 const router = express.Router();
 
@@ -20,9 +21,18 @@ router.get('/:id', (req, res) => {
   }
 });
 
-router.post('/', newDiaryParser, (req: Request<unknown, unknown, NewDiaryEntry>, res: Response<DiaryEntry>) => {  
-  const addedEntry = diaryService.addDiary(req.body);  
-  res.json(addedEntry);
+router.post('/', (req: Request, res: Response<DiaryEntry | { error: string }>) => {
+  try {
+    const newDiaryEntry = parseNewDiaryEntry(req.body);
+    const addedEntry = diaryService.addDiary(newDiaryEntry);
+    res.json(addedEntry);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(400).send({ error: error.message });
+    } else {
+      res.status(400).send({ error: 'Invalid diary entry' });
+    }
+  }
 });
 
 router.use(errorMiddleware);

@@ -13,6 +13,8 @@ export type Patient = {
   occupation: string;
 };
 
+export type NewPatientEntry = Omit<Patient, 'id'>;
+
 export type PublicPatient = Pick<
   Patient,
   'id' | 'name' | 'dateOfBirth' | 'gender' | 'occupation'

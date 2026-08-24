@@ -1,11 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import diagnoses from './data/diagnoses.js';
-import patients from './data/patients.js';
-import type { Diagnosis, PublicPatient } from './types.js';
+import patientRouter from './routes/patients.js';
+import type { Diagnosis } from './types.js';
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 app.get('/api/ping', (_req, res) => {
   res.send('pong');
@@ -16,16 +17,7 @@ app.get('/api/diagnoses', (_req, res) => {
   res.json(diagnosisList);
 });
 
-app.get('/api/patients', (_req, res) => {
-  const patientList: PublicPatient[] = patients.map((patient) => ({
-    id: patient.id,
-    name: patient.name,
-    dateOfBirth: patient.dateOfBirth,
-    gender: patient.gender,
-    occupation: patient.occupation,
-  }));
-  res.json(patientList);
-});
+app.use('/api/patients', patientRouter);
 
 const PORT = 3001;
 

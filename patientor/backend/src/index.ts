@@ -1,11 +1,18 @@
 import express from 'express';
 import cors from 'cors';
+import diagnoses from './data/diagnoses.js';
+import type { Diagnosis } from './types.js';
 
 const app = express();
 app.use(cors());
 
 app.get('/api/ping', (_req, res) => {
   res.send('pong');
+});
+
+app.get('/api/diagnoses', (_req, res) => {
+  const diagnosisList: Diagnosis[] = diagnoses;
+  res.json(diagnosisList);
 });
 
 const PORT = 3001;

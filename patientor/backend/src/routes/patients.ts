@@ -1,12 +1,50 @@
 import express, { type Request, type Response } from 'express';
+import { z } from 'zod';
 import { NewPatientSchema } from '../types.js';
 import patientService from '../services/patientService.js';
-import type { Patient, NonSensitivePatient } from '../types.js';
+import { parseNewEntry } from '../utils.js';
+import type { Entry, Patient, NonSensitivePatient } from '../types.js';
 
 const router = express.Router();
 
 router.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
   res.json(patientService.getPatients());
+});
+
+router.post('/:id/entries', (req: Request<{ id: string }>, res: Response<Entry | { error: string }>) => {
+  const patient = patientService.findById(req.params.id);
+
+  if (!patient) {
+    res.status(404).json({ error: 'Patient not found' });
+    return;
+  }
+
+  try {
+    const newEntry = parseNewEntry(req.body);
+    const addedEntry = patientService.addEntry(patient.id, newEntry);
+
+    if (!addedEntry) {
+      res.status(404).json({ error: 'Patient not found' });
+      return;
+    }
+
+    res.status(201).json(addedEntry);
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      const message = error.issues
+        .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+        .join('; ');
+      res.status(400).json({ error: message });
+      return;
+    }
+
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+
+    res.status(400).json({ error: 'Invalid entry' });
+  }
 });
 
 router.get('/:id', (req: Request<{ id: string }>, res: Response<Patient | { error: string }>) => {

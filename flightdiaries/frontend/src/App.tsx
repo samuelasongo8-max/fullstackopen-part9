@@ -1,5 +1,5 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
-import axios, { type AxiosError } from 'axios';
+import axios from 'axios';
 
 type Weather = 'sunny' | 'rainy' | 'cloudy' | 'stormy' | 'windy';
 type Visibility = 'great' | 'good' | 'ok' | 'poor';
@@ -19,6 +19,10 @@ type NewDiaryEntry = {
   comment: string;
 };
 
+type BackendError = {
+  error?: string;
+};
+
 type FormState = NewDiaryEntry;
 
 const weatherOptions: Weather[] = ['sunny', 'rainy', 'cloudy', 'stormy', 'windy'];
@@ -29,6 +33,18 @@ const initialFormState: FormState = {
   weather: 'sunny',
   visibility: 'great',
   comment: '',
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError<BackendError>(error)) {
+    return error.response?.data.error ?? fallback;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallback;
 };
 
 const App = () => {
@@ -43,9 +59,7 @@ const App = () => {
         const response = await axios.get<DiaryEntry[]>('/api/diaries');
         setEntries(response.data);
       } catch (err) {
-        const axiosError = err as AxiosError<{ error?: string }>;
-        const message = axiosError.response?.data?.error ?? 'Failed to load diary entries';
-        setError(message);
+        setError(getErrorMessage(err, 'Failed to load diary entries'));
       } finally {
         setLoading(false);
       }
@@ -74,9 +88,7 @@ const App = () => {
       setForm(initialFormState);
       setError(null);
     } catch (err) {
-      const axiosError = err as AxiosError<{ error?: string }>;
-      const message = axiosError.response?.data?.error ?? 'Failed to create diary entry';
-      setError(message);
+      setError(getErrorMessage(err, 'Failed to create diary entry'));
     }
   };
 

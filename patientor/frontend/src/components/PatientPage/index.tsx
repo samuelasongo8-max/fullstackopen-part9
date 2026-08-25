@@ -64,6 +64,8 @@ const PatientPage = ({ diagnoses }: Props) => {
   const [patient, setPatient] = useState<Patient>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
+  const [entryFormOpen, setEntryFormOpen] = useState<boolean>(false);
+  const [entrySubmitting, setEntrySubmitting] = useState<boolean>(false);
   const [entryForm, setEntryForm] = useState<EntryFormState>(initialEntryForm);
 
   useEffect(() => {
@@ -108,6 +110,12 @@ const PatientPage = ({ diagnoses }: Props) => {
   const handleEntrySubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (entrySubmitting) {
+      return;
+    }
+
+    setEntrySubmitting(true);
+
     const commonFields = {
       date: entryForm.date,
       description: entryForm.description,
@@ -146,6 +154,8 @@ const PatientPage = ({ diagnoses }: Props) => {
           },
         };
         break;
+      default:
+        throw new Error(`Unsupported entry type: ${entryForm.type}`);
     }
 
     try {
@@ -163,6 +173,8 @@ const PatientPage = ({ diagnoses }: Props) => {
       } else {
         setError("Failed to create entry");
       }
+    } finally {
+      setEntrySubmitting(false);
     }
   };
 
@@ -173,7 +185,12 @@ const PatientPage = ({ diagnoses }: Props) => {
       <Typography>Gender: {patient.gender}</Typography>
       <Typography>Occupation: {patient.occupation}</Typography>
       <Typography>SSN: {patient.ssn}</Typography>
-      <Typography variant="h5" sx={{ marginTop: 2 }}>Add Entry</Typography>
+      {!entryFormOpen && (
+        <Button variant="contained" onClick={() => setEntryFormOpen(true)}>
+          Add New Entry
+        </Button>
+      )}
+      {entryFormOpen && (
       <form onSubmit={handleEntrySubmit}>
         <TextField
           select
@@ -248,12 +265,13 @@ const PatientPage = ({ diagnoses }: Props) => {
             <TextField label="Discharge criteria" value={entryForm.dischargeCriteria} onChange={(event) => setEntryForm({ ...entryForm, dischargeCriteria: event.target.value })} fullWidth margin="normal" />
           </>
         )}
-        <Button type="submit" variant="contained">Add entry</Button>
+        <Button type="submit" variant="contained" disabled={entrySubmitting}>Add</Button>
       </form>
+      )}
       <Typography variant="h5" sx={{ marginTop: 2 }}>Entries</Typography>
       {patient.entries.length > 0 ? (
         patient.entries.map((entry) => (
-          <div key={entry.id}>
+          <div key={entry.id} data-testid="patient-entry">
             <Typography>Type: {entry.type}</Typography>
             <Typography>Date: {entry.date}</Typography>
             <Typography>Description: {entry.description}</Typography>

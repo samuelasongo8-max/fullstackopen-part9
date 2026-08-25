@@ -22,11 +22,11 @@ const data: Patient[] = [
                 "date": "2019-10-22",
                 "type": "Hospital",
                 "specialist": "Dr. Strange",
-                "description": "Broken arm",
+                "description": "Healing time appr. 2 weeks. patient doesn't remember how he got the injury.",
                 "diagnosisCodes": ["S62.5"],
                 "discharge": {
                     "date": "2019-10-25",
-                    "criteria": "Arm healed"
+                    "criteria": "Thumb has healed."
                 }
             },
             {

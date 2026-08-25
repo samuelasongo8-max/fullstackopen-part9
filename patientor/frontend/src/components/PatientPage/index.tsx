@@ -4,9 +4,13 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import patientService from "../../services/patients";
-import { Patient } from "../../types";
+import { Diagnosis, Patient } from "../../types";
 
-const PatientPage = () => {
+interface Props {
+  diagnoses: Diagnosis[];
+}
+
+const PatientPage = ({ diagnoses }: Props) => {
   const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -49,6 +53,8 @@ const PatientPage = () => {
     return <Alert severity="error">Patient not found</Alert>;
   }
 
+  const diagnosisByCode = new Map(diagnoses.map((diagnosis) => [diagnosis.code, diagnosis]));
+
   return (
     <div>
       <Typography variant="h4">{patient.name}</Typography>
@@ -63,7 +69,16 @@ const PatientPage = () => {
             <Typography>Date: {entry.date}</Typography>
             <Typography>Description: {entry.description}</Typography>
             {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
-              <Typography>Diagnosis codes: {entry.diagnosisCodes.join(", ")}</Typography>
+              <div>
+                {entry.diagnosisCodes.map((code) => {
+                  const diagnosis = diagnosisByCode.get(code);
+                  return (
+                    <Typography key={code}>
+                      {code}{diagnosis ? ` — ${diagnosis.name}` : ""}
+                    </Typography>
+                  );
+                })}
+              </div>
             )}
           </div>
         ))

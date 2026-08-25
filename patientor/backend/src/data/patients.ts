@@ -8,7 +8,40 @@ const data: Patient[] = [
         "ssn": "090786-122X",
         "gender": "male",
         "occupation": "New york city cop",
-        "entries": []
+        "entries": [
+            {
+                "id": "entry-1",
+                "date": "2019-10-20",
+                "type": "HealthCheck",
+                "specialist": "Dr. House",
+                "description": "Yearly control",
+                "healthCheckRating": 0
+            },
+            {
+                "id": "entry-2",
+                "date": "2019-10-22",
+                "type": "Hospital",
+                "specialist": "Dr. Strange",
+                "description": "Broken arm",
+                "diagnosisCodes": ["S62.5"],
+                "discharge": {
+                    "date": "2019-10-25",
+                    "criteria": "Arm healed"
+                }
+            },
+            {
+                "id": "entry-3",
+                "date": "2019-11-01",
+                "type": "OccupationalHealthcare",
+                "specialist": "Dr. Jones",
+                "description": "Back pain",
+                "employerName": "Acme Corporation",
+                "sickLeave": {
+                    "startDate": "2019-11-01",
+                    "endDate": "2019-11-07"
+                }
+            }
+        ]
     },
     {
         "id": "d2773598-f723-11e9-8f0b-362b9e155667",

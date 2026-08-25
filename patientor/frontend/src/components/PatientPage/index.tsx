@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Alert, CircularProgress, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import patientService from "../../services/patients";
-import { Diagnosis, Patient } from "../../types";
+import { Diagnosis, HealthCheckRating, NewHealthCheckEntry, Patient } from "../../types";
 import EntryDetails from "../EntryDetails";
 
 interface Props {
@@ -16,6 +16,13 @@ const PatientPage = ({ diagnoses }: Props) => {
   const [patient, setPatient] = useState<Patient>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
+  const [entryForm, setEntryForm] = useState({
+    date: "",
+    description: "",
+    specialist: "",
+    diagnosisCodes: "",
+    healthCheckRating: "0",
+  });
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -56,6 +63,45 @@ const PatientPage = ({ diagnoses }: Props) => {
 
   const diagnosisByCode = new Map(diagnoses.map((diagnosis) => [diagnosis.code, diagnosis]));
 
+  const handleEntrySubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const newEntry: NewHealthCheckEntry = {
+      type: "HealthCheck",
+      date: entryForm.date,
+      description: entryForm.description,
+      specialist: entryForm.specialist,
+      diagnosisCodes: entryForm.diagnosisCodes
+        .split(",")
+        .map((code) => code.trim())
+        .filter((code) => code.length > 0),
+      healthCheckRating: Number(entryForm.healthCheckRating) as HealthCheckRating,
+    };
+
+    try {
+      const createdEntry = await patientService.createEntry(patient.id, newEntry);
+      setPatient((previous) => previous ? {
+        ...previous,
+        entries: [...previous.entries, createdEntry],
+      } : previous);
+      setEntryForm({
+        date: "",
+        description: "",
+        specialist: "",
+        diagnosisCodes: "",
+        healthCheckRating: "0",
+      });
+      setError(undefined);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e) && e.response?.data && typeof e.response.data === "object" && "error" in e.response.data) {
+        const message = e.response.data.error;
+        setError(typeof message === "string" ? message : "Failed to create entry");
+      } else {
+        setError("Failed to create entry");
+      }
+    }
+  };
+
   return (
     <div>
       <Typography variant="h4">{patient.name}</Typography>
@@ -63,6 +109,15 @@ const PatientPage = ({ diagnoses }: Props) => {
       <Typography>Gender: {patient.gender}</Typography>
       <Typography>Occupation: {patient.occupation}</Typography>
       <Typography>SSN: {patient.ssn}</Typography>
+      <Typography variant="h5" sx={{ marginTop: 2 }}>Add HealthCheck Entry</Typography>
+      <form onSubmit={handleEntrySubmit}>
+        <TextField label="Date" type="date" value={entryForm.date} onChange={(event) => setEntryForm({ ...entryForm, date: event.target.value })} InputLabelProps={{ shrink: true }} fullWidth margin="normal" />
+        <TextField label="Description" value={entryForm.description} onChange={(event) => setEntryForm({ ...entryForm, description: event.target.value })} fullWidth margin="normal" />
+        <TextField label="Specialist" value={entryForm.specialist} onChange={(event) => setEntryForm({ ...entryForm, specialist: event.target.value })} fullWidth margin="normal" />
+        <TextField label="Diagnosis codes" value={entryForm.diagnosisCodes} onChange={(event) => setEntryForm({ ...entryForm, diagnosisCodes: event.target.value })} fullWidth margin="normal" />
+        <TextField label="HealthCheck rating" type="number" value={entryForm.healthCheckRating} onChange={(event) => setEntryForm({ ...entryForm, healthCheckRating: event.target.value })} fullWidth margin="normal" />
+        <Button type="submit" variant="contained">Add entry</Button>
+      </form>
       <Typography variant="h5" sx={{ marginTop: 2 }}>Entries</Typography>
       {patient.entries.length > 0 ? (
         patient.entries.map((entry) => (

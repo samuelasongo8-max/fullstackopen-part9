@@ -1,5 +1,18 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
-import { Alert, Button, CircularProgress, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+  type SelectChangeEvent,
+} from '@mui/material';
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -23,8 +36,8 @@ interface EntryFormState {
   date: string;
   description: string;
   specialist: string;
-  diagnosisCodes: string;
-  healthCheckRating: string;
+  diagnosisCodes: string[];
+  healthCheckRating: HealthCheckRating;
   employerName: string;
   sickLeaveStartDate: string;
   sickLeaveEndDate: string;
@@ -37,8 +50,8 @@ const initialEntryForm: EntryFormState = {
   date: "",
   description: "",
   specialist: "",
-  diagnosisCodes: "",
-  healthCheckRating: "0",
+  diagnosisCodes: [],
+  healthCheckRating: HealthCheckRating.Healthy,
   employerName: "",
   sickLeaveStartDate: "",
   sickLeaveEndDate: "",
@@ -99,10 +112,7 @@ const PatientPage = ({ diagnoses }: Props) => {
       date: entryForm.date,
       description: entryForm.description,
       specialist: entryForm.specialist,
-      diagnosisCodes: entryForm.diagnosisCodes
-        .split(",")
-        .map((code) => code.trim())
-        .filter((code) => code.length > 0),
+      diagnosisCodes: entryForm.diagnosisCodes,
     };
 
     let newEntry: NewEntry;
@@ -181,9 +191,49 @@ const PatientPage = ({ diagnoses }: Props) => {
         <TextField label="Date" type="date" value={entryForm.date} onChange={(event) => setEntryForm({ ...entryForm, date: event.target.value })} InputLabelProps={{ shrink: true }} fullWidth margin="normal" />
         <TextField label="Description" value={entryForm.description} onChange={(event) => setEntryForm({ ...entryForm, description: event.target.value })} fullWidth margin="normal" />
         <TextField label="Specialist" value={entryForm.specialist} onChange={(event) => setEntryForm({ ...entryForm, specialist: event.target.value })} fullWidth margin="normal" />
-        <TextField label="Diagnosis codes" value={entryForm.diagnosisCodes} onChange={(event) => setEntryForm({ ...entryForm, diagnosisCodes: event.target.value })} fullWidth margin="normal" />
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="diagnosis-codes-label">Diagnosis codes</InputLabel>
+          <Select<string[]>
+            labelId="diagnosis-codes-label"
+            multiple
+            value={entryForm.diagnosisCodes}
+            onChange={(event: SelectChangeEvent<string[]>) =>
+              setEntryForm({
+                ...entryForm,
+                diagnosisCodes: event.target.value as string[],
+              })
+            }
+            renderValue={(selected) => selected.join(", ")}
+            label="Diagnosis codes"
+          >
+            {diagnoses.map((diagnosis) => (
+              <MenuItem key={diagnosis.code} value={diagnosis.code}>
+                <Checkbox checked={entryForm.diagnosisCodes.includes(diagnosis.code)} />
+                <ListItemText primary={`${diagnosis.code} - ${diagnosis.name}`} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         {entryForm.type === "HealthCheck" && (
-          <TextField label="HealthCheck rating" type="number" value={entryForm.healthCheckRating} onChange={(event) => setEntryForm({ ...entryForm, healthCheckRating: event.target.value })} fullWidth margin="normal" />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="health-check-rating-label">HealthCheck rating</InputLabel>
+            <Select
+              labelId="health-check-rating-label"
+              value={entryForm.healthCheckRating}
+              onChange={(event: SelectChangeEvent<number>) =>
+                setEntryForm({
+                  ...entryForm,
+                  healthCheckRating: Number(event.target.value) as HealthCheckRating,
+                })
+              }
+              label="HealthCheck rating"
+            >
+              <MenuItem value={HealthCheckRating.Healthy}>Healthy</MenuItem>
+              <MenuItem value={HealthCheckRating.LowRisk}>Low Risk</MenuItem>
+              <MenuItem value={HealthCheckRating.HighRisk}>High Risk</MenuItem>
+              <MenuItem value={HealthCheckRating.CriticalRisk}>Critical Risk</MenuItem>
+            </Select>
+          </FormControl>
         )}
         {entryForm.type === "OccupationalHealthcare" && (
           <>

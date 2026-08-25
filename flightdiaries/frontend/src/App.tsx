@@ -73,10 +73,15 @@ const App = () => {
   ) => {
     const { name, value } = event.target;
 
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+    if (name === 'weather') {
+      setForm((previous) => ({ ...previous, weather: value as Weather }));
+    } else if (name === 'visibility') {
+      setForm((previous) => ({ ...previous, visibility: value as Visibility }));
+    } else if (name === 'date') {
+      setForm((previous) => ({ ...previous, date: value }));
+    } else if (name === 'comment') {
+      setForm((previous) => ({ ...previous, comment: value }));
+    }
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -103,29 +108,37 @@ const App = () => {
           <input id="date" name="date" type="date" value={form.date} onChange={handleInputChange} />
         </div>
 
-        <div>
-          <label htmlFor="weather">Weather</label>
-          <br />
-          <select id="weather" name="weather" value={form.weather} onChange={handleInputChange}>
-            {weatherOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
+        <fieldset>
+          <legend>Weather</legend>
+          {weatherOptions.map((option) => (
+            <label key={option}>
+              <input
+                type="radio"
+                name="weather"
+                value={option}
+                checked={form.weather === option}
+                onChange={handleInputChange}
+              />
+              {option}
+            </label>
+          ))}
+        </fieldset>
 
-        <div>
-          <label htmlFor="visibility">Visibility</label>
-          <br />
-          <select id="visibility" name="visibility" value={form.visibility} onChange={handleInputChange}>
-            {visibilityOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
+        <fieldset>
+          <legend>Visibility</legend>
+          {visibilityOptions.map((option) => (
+            <label key={option}>
+              <input
+                type="radio"
+                name="visibility"
+                value={option}
+                checked={form.visibility === option}
+                onChange={handleInputChange}
+              />
+              {option}
+            </label>
+          ))}
+        </fieldset>
 
         <div>
           <label htmlFor="comment">Comment</label>

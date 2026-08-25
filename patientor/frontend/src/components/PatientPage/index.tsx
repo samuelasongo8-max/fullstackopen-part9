@@ -5,6 +5,7 @@ import axios from "axios";
 
 import patientService from "../../services/patients";
 import { Diagnosis, Patient } from "../../types";
+import EntryDetails from "../EntryDetails";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -66,6 +67,7 @@ const PatientPage = ({ diagnoses }: Props) => {
       {patient.entries.length > 0 ? (
         patient.entries.map((entry) => (
           <div key={entry.id}>
+            <Typography>Type: {entry.type}</Typography>
             <Typography>Date: {entry.date}</Typography>
             <Typography>Description: {entry.description}</Typography>
             {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
@@ -80,6 +82,7 @@ const PatientPage = ({ diagnoses }: Props) => {
                 })}
               </div>
             )}
+            <EntryDetails entry={entry} />
           </div>
         ))
       ) : (

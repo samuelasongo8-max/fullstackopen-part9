@@ -27,7 +27,18 @@ export default [
       },
       globals: {
         ...Object.fromEntries(
-          ['document', 'window', 'fetch', 'console', 'setTimeout', 'clearTimeout'].map((key) => [key, 'readonly'])
+          [
+            'document',
+            'window',
+            'fetch',
+            'console',
+            'setTimeout',
+            'clearTimeout',
+            'HTMLInputElement',
+            'HTMLSelectElement',
+            'HTMLTextAreaElement',
+            'HTMLFormElement',
+          ].map((key) => [key, 'readonly'])
         ),
       },
     },

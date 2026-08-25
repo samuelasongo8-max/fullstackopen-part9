@@ -57,9 +57,15 @@ const PatientPage = () => {
       <Typography>Occupation: {patient.occupation}</Typography>
       <Typography>SSN: {patient.ssn}</Typography>
       <Typography variant="h5" sx={{ marginTop: 2 }}>Entries</Typography>
-      {patient.entries && patient.entries.length > 0 ? (
-        patient.entries.map((_entry, index) => (
-          <Typography key={index}>Entry {index + 1}</Typography>
+      {patient.entries.length > 0 ? (
+        patient.entries.map((entry) => (
+          <div key={entry.id}>
+            <Typography>Date: {entry.date}</Typography>
+            <Typography>Description: {entry.description}</Typography>
+            {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
+              <Typography>Diagnosis codes: {entry.diagnosisCodes.join(", ")}</Typography>
+            )}
+          </div>
         ))
       ) : (
         <Typography>No entries</Typography>

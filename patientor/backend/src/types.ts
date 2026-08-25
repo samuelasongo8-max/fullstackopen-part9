@@ -6,6 +6,10 @@ export type Diagnosis = {
   latin?: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Entry {
+}
+
 export type Patient = {
   id: string;
   name: string;
@@ -13,6 +17,7 @@ export type Patient = {
   ssn: string;
   gender: Gender;
   occupation: string;
+  entries: Entry[];
 };
 
 export const Gender = {
@@ -33,7 +38,4 @@ export const NewPatientSchema = z.object({
 
 export type NewPatientEntry = z.infer<typeof NewPatientSchema>;
 
-export type PublicPatient = Pick<
-  Patient,
-  'id' | 'name' | 'dateOfBirth' | 'gender' | 'occupation'
->;
+export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entries'>;

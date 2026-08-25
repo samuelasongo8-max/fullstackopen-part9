@@ -7,15 +7,18 @@ const getPatients = () => patients.map(({ id, name, dateOfBirth, gender, occupat
     gender,
     occupation,
 }));
+const findById = (id) => patients.find((patient) => patient.id === id);
 const addPatient = (patient) => {
     const newPatient = {
         id: uuid(),
         ...patient,
+        entries: [],
     };
     patients.push(newPatient);
     return newPatient;
 };
 export default {
     getPatients,
+    findById,
     addPatient,
 };
